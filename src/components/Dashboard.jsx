@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Search, Plus, Edit3, Trash2, Heart, Music, Cable, Star, Sparkles, UploadCloud, DownloadCloud, AlertTriangle } from 'lucide-react';
+import { Search, Plus, Edit3, Trash2, Heart, Music, Cable, Star, Sparkles, UploadCloud, DownloadCloud, AlertTriangle, RotateCcw } from 'lucide-react';
 import { CATEGORIES } from '../hooks/usePresets';
 
 export default function Dashboard({ presetsHook, midiState, isLiveMode = false, onAddNew, onEdit }) {
-  const { presets, toggleFavorite, deletePreset, exportPresets, importPresets } = presetsHook;
+  const { presets, toggleFavorite, deletePreset, exportPresets, importPresets, loadDefaultPresets } = presetsHook;
   const { sendVoiceChange, isConnected, outputs, selectedOutputId } = midiState;
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -32,6 +32,18 @@ export default function Dashboard({ presetsHook, midiState, isLiveMode = false, 
       }).catch(err => {
         alert("Import failed: " + err.message);
       });
+    }
+  };
+
+  const handleLoadDefaults = () => {
+    if (confirm("Would you like to import all missing default voices? This will NOT delete your custom voices. (To completely reset all voices to default, click Cancel and we will ask if you want to reset instead).")) {
+      loadDefaultPresets(false);
+      alert("Missing default voices added successfully!");
+    } else {
+      if (confirm("Would you like to completely RESET all voices to factory defaults? This will erase all custom voices.")) {
+        loadDefaultPresets(true);
+        alert("All presets reset to factory default!");
+      }
     }
   };
 
@@ -70,6 +82,9 @@ export default function Dashboard({ presetsHook, midiState, isLiveMode = false, 
             <p className="text-slate-400 mt-1 text-sm">Browse, filter, and organize your synthesizer sound patches</p>
           </div>
           <div className="flex flex-wrap gap-3 w-full md:w-auto">
+            <button className="secondary-button text-xs flex-1 md:flex-none" onClick={handleLoadDefaults}>
+              <RotateCcw size={16} /> Load Defaults
+            </button>
             <label className="secondary-button text-xs cursor-pointer flex-1 md:flex-none">
               <UploadCloud size={16} /> Import
               <input type="file" accept=".json" className="hidden" onChange={handleImport} />
