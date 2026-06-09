@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-export function useMIDI() {
+export function useMIDI(options = {}) {
+  const { enableLogging = false } = options;
   const [midiAccess, setMidiAccess] = useState(null);
   const [inputs, setInputs] = useState([]);
   const [outputs, setOutputs] = useState([]);
@@ -16,8 +17,17 @@ export function useMIDI() {
   const addLog = useCallback((message, type = 'info') => {
     const newLog = { id: Date.now() + Math.random(), time: new Date().toLocaleTimeString(), message, type };
     midiLogRef.current = [newLog, ...midiLogRef.current].slice(0, 100); // Keep last 100
-    setMidiLog([...midiLogRef.current]);
-  }, []);
+    if (enableLogging) {
+      setMidiLog([...midiLogRef.current]);
+    }
+  }, [enableLogging]);
+
+  // Sync log history when logging is enabled (switching to Monitor tab)
+  useEffect(() => {
+    if (enableLogging) {
+      setMidiLog([...midiLogRef.current]);
+    }
+  }, [enableLogging]);
 
   const updateDevices = useCallback((access) => {
     if (!access) return;
@@ -152,12 +162,13 @@ export function useMIDI() {
     const pcStatus = 0xC0 + channelIndex;
 
     try {
+      const now = performance.now();
       // Send CC 0 (MSB)
-      output.send([ccStatus, 0, parseInt(msb)]);
-      // Send CC 32 (LSB)
-      output.send([ccStatus, 32, parseInt(lsb)]);
-      // Send PC (Program - 1)
-      output.send([pcStatus, parseInt(program) - 1]);
+      output.send([ccStatus, 0, parseInt(msb)], now);
+      // Send CC 32 (LSB) with a tiny 5ms delay to allow hardware synth buffer to process bank select
+      output.send([ccStatus, 32, parseInt(lsb)], now + 5);
+      // Send PC (Program - 1) with a 10ms delay to commit bank and program change in order
+      output.send([pcStatus, parseInt(program) - 1], now + 10);
       
       addLog(`OUT: Voice Change CH${selectedChannel} [MSB:${msb} LSB:${lsb} PC:${program}]`, 'tx');
       return true;

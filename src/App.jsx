@@ -11,7 +11,7 @@ import { usePresets } from './hooks/usePresets';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('connect');
-  const midiState = useMIDI();
+  const midiState = useMIDI({ enableLogging: activeTab === 'monitor' });
   const presetsHook = usePresets();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
