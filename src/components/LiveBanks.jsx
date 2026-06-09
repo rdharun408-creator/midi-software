@@ -164,13 +164,24 @@ export default function LiveBanks({ presetsHook, midiState, isLocked, setIsLocke
         handleTapTempo();
         return;
       }
+
+      // Shift key = Play/Stop style toggle (especially useful in zoomed/fullscreen mode)
+      if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+        e.preventDefault();
+        if (isClockRunning) {
+          sendMidiStop();
+        } else {
+          sendMidiStart();
+        }
+        return;
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [activeBank, activeVoiceIndex, handleTapTempo]);
+  }, [activeBank, activeVoiceIndex, handleTapTempo, isClockRunning, sendMidiStart, sendMidiStop]);
 
   // Activate a bank preset (loads tempo, transpose SysEx, and resets active voice pad)
   const handleActivateBank = (bank) => {
@@ -499,6 +510,7 @@ export default function LiveBanks({ presetsHook, midiState, isLocked, setIsLocke
                     className="px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-extrabold flex items-center justify-center gap-2 flex-1 lg:flex-none shadow-lg shadow-emerald-500/10 transition-all hover:scale-[1.02] active:scale-95 text-xs"
                   >
                     <Play size={14} fill="white" /> START
+                    <kbd className="hidden lg:inline-block ml-1 px-1.5 py-0.5 rounded bg-emerald-700/60 border border-emerald-400/30 text-[9px] font-mono font-normal">⇧ Shift</kbd>
                   </button>
                 ) : (
                   <button 
@@ -506,6 +518,7 @@ export default function LiveBanks({ presetsHook, midiState, isLocked, setIsLocke
                     className="px-5 py-3 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-extrabold flex items-center justify-center gap-2 flex-1 lg:flex-none shadow-lg shadow-rose-500/10 transition-all hover:scale-[1.02] active:scale-95 text-xs"
                   >
                     <Square size={14} fill="white" /> STOP
+                    <kbd className="hidden lg:inline-block ml-1 px-1.5 py-0.5 rounded bg-rose-700/60 border border-rose-400/30 text-[9px] font-mono font-normal">⇧ Shift</kbd>
                   </button>
                 )}
 
