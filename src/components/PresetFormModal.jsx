@@ -8,14 +8,18 @@ export default function PresetFormModal({ isOpen, onClose, onSave, initialData }
     category: 'Custom',
     msb: 0,
     lsb: 0,
-    program: 1
+    program: 1,
+    voiceNo: ''
   });
 
   useEffect(() => {
     if (initialData) {
-      setFormData(initialData);
+      setFormData({
+        ...initialData,
+        voiceNo: initialData.voiceNo !== null && initialData.voiceNo !== undefined ? initialData.voiceNo : ''
+      });
     } else {
-      setFormData({ name: '', category: 'Custom', msb: 0, lsb: 0, program: 1 });
+      setFormData({ name: '', category: 'Custom', msb: 0, lsb: 0, program: 1, voiceNo: '' });
     }
   }, [initialData, isOpen]);
 
@@ -23,7 +27,10 @@ export default function PresetFormModal({ isOpen, onClose, onSave, initialData }
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData);
+    onSave({
+      ...formData,
+      voiceNo: formData.voiceNo !== '' ? parseInt(formData.voiceNo) : null
+    });
     onClose();
   };
 
@@ -50,18 +57,34 @@ export default function PresetFormModal({ isOpen, onClose, onSave, initialData }
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
-              Voice Name
-            </label>
-            <input 
-              required
-              type="text" 
-              placeholder="e.g. Warm Brass Pad"
-              className="input-field bg-slate-950/30"
-              value={formData.name}
-              onChange={e => setFormData({...formData, name: e.target.value})}
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                Voice Name
+              </label>
+              <input 
+                required
+                type="text" 
+                placeholder="e.g. Warm Brass Pad"
+                className="input-field bg-slate-950/30"
+                value={formData.name}
+                onChange={e => setFormData({...formData, name: e.target.value})}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                Voice # (Optional)
+              </label>
+              <input 
+                type="number" 
+                min="1"
+                max="999"
+                placeholder="e.g. 41"
+                className="input-field bg-slate-950/30"
+                value={formData.voiceNo}
+                onChange={e => setFormData({...formData, voiceNo: e.target.value === '' ? '' : parseInt(e.target.value)})}
+              />
+            </div>
           </div>
           
           <div>

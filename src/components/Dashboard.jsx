@@ -11,15 +11,19 @@ export default function Dashboard({ presetsHook, midiState, isLiveMode = false, 
   const [activeVoiceId, setActiveVoiceId] = useState(null);
 
   const filteredPresets = presets.filter(p => {
-    const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const searchLower = searchTerm.toLowerCase();
+    const searchNo = searchLower.startsWith('#') ? searchLower.slice(1) : searchLower;
+    const matchesSearch = 
+      p.name.toLowerCase().includes(searchLower) ||
+      (p.voiceNo !== null && p.voiceNo !== undefined && String(p.voiceNo).includes(searchNo));
     const matchesCategory = activeCategory === 'All' || p.category === activeCategory;
     const matchesLive = !isLiveMode || p.favorite;
     return matchesSearch && matchesCategory && matchesLive;
   });
 
   const handleVoiceClick = (preset) => {
-    const success = sendVoiceChange(preset.msb, preset.lsb, preset.program);
-    if (success) {
+    const success = sendVoiceChange(preset.msb, preset.lsb, preset.program, preset.name);
+    if (success || preset.msb === null) {
       setActiveVoiceId(preset.id);
     }
   };
@@ -64,7 +68,11 @@ export default function Dashboard({ presetsHook, midiState, isLiveMode = false, 
       case 'Bass': return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/15';
       case 'Brass': return 'bg-orange-500/10 text-orange-400 border-orange-500/15';
       case 'Flute': return 'bg-teal-500/10 text-teal-400 border-teal-500/15';
+      case 'World': return 'bg-yellow-500/10 text-yellow-400 border-yellow-500/15';
+      case 'Drums': return 'bg-red-500/10 text-red-400 border-red-500/15';
+      case 'SFX': return 'bg-purple-500/10 text-purple-400 border-purple-500/15';
       case 'Pad': return 'bg-pink-500/10 text-pink-400 border-pink-500/15';
+      case 'Percussion': return 'bg-lime-500/10 text-lime-400 border-lime-500/15';
       case 'Custom': return 'bg-indigo-500/10 text-indigo-400 border-indigo-500/15';
       default: return 'bg-slate-500/10 text-slate-400 border-slate-500/15';
     }
@@ -212,9 +220,16 @@ export default function Dashboard({ presetsHook, midiState, isLiveMode = false, 
               >
                 {/* Header Tag and Action Overlay */}
                 <div className="flex justify-between items-center w-full z-10">
-                  <span className={`text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-md border ${getCategoryColor(preset.category)}`}>
-                    {preset.category}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-md border ${getCategoryColor(preset.category)}`}>
+                      {preset.category}
+                    </span>
+                    {preset.voiceNo !== null && preset.voiceNo !== undefined && (
+                      <span className="text-[10px] font-bold bg-slate-900 text-slate-300 border border-white/5 px-2 py-1 rounded-md">
+                        #{String(preset.voiceNo).padStart(3, '0')}
+                      </span>
+                    )}
+                  </div>
                   
                   {/* Action overlay that reveals on card hover */}
                   {!isLiveMode && (
@@ -254,15 +269,23 @@ export default function Dashboard({ presetsHook, midiState, isLiveMode = false, 
                 
                 {/* Technical values (MSB LSB PC) */}
                 <div className="text-xs text-slate-400 font-medium z-10 flex gap-2 items-center">
-                  <span className="bg-white/2 border border-white/5 px-1.5 py-0.5 rounded text-[10px] font-bold text-slate-400">
-                    M: {preset.msb}
-                  </span>
-                  <span className="bg-white/2 border border-white/5 px-1.5 py-0.5 rounded text-[10px] font-bold text-slate-400">
-                    L: {preset.lsb}
-                  </span>
-                  <span className="bg-indigo-500/5 border border-indigo-500/15 px-1.5 py-0.5 rounded text-[10px] font-bold text-indigo-300">
-                    PC: {preset.program}
-                  </span>
+                  {preset.msb !== null && preset.lsb !== null && preset.program !== null ? (
+                    <>
+                      <span className="bg-white/2 border border-white/5 px-1.5 py-0.5 rounded text-[10px] font-bold text-slate-400">
+                        M: {preset.msb}
+                      </span>
+                      <span className="bg-white/2 border border-white/5 px-1.5 py-0.5 rounded text-[10px] font-bold text-slate-400">
+                        L: {preset.lsb}
+                      </span>
+                      <span className="bg-indigo-500/5 border border-indigo-500/15 px-1.5 py-0.5 rounded text-[10px] font-bold text-indigo-300">
+                        PC: {preset.program}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="bg-amber-500/10 border border-amber-500/15 px-2 py-0.5 rounded text-[10px] font-bold text-amber-400">
+                      Internal Only
+                    </span>
+                  )}
                 </div>
 
                 {/* Favorite toggle star */}

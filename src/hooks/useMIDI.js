@@ -128,7 +128,12 @@ export function useMIDI() {
     };
   }, [midiAccess, selectedInputId, addLog, midiThruEnabled, selectedOutputId, selectedChannel]);
 
-  const sendVoiceChange = useCallback((msb, lsb, program) => {
+  const sendVoiceChange = useCallback((msb, lsb, program, voiceName = '') => {
+    if (msb === null || lsb === null || program === null || msb === undefined || lsb === undefined || program === undefined) {
+      addLog(`INFO: ${voiceName || 'This patch'} is a keyboard-internal voice and cannot be selected via MIDI.`, 'info');
+      return false;
+    }
+
     if (!midiAccess || !selectedOutputId) {
       addLog('Error: No MIDI output selected', 'error');
       return false;
