@@ -1,11 +1,12 @@
 import React from 'react';
-import { LayoutDashboard, Cable, Mic2, Terminal, BookOpen, Music } from 'lucide-react';
+import { LayoutDashboard, Cable, Mic2, Terminal, BookOpen, Music, Layers } from 'lucide-react';
 
 export default function Navigation({ activeTab, setActiveTab, midiState }) {
   const { isConnected, outputs, selectedOutputId } = midiState || {};
   
   const navItems = [
     { id: 'dashboard', label: 'Voices', icon: LayoutDashboard },
+    { id: 'stage', label: 'Stage Control', icon: Layers },
     { id: 'live', label: 'Live Mode', icon: Mic2 },
     { id: 'connect', label: 'Devices', icon: Cable },
     { id: 'monitor', label: 'Monitor', icon: Terminal },

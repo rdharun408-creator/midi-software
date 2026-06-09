@@ -5,6 +5,7 @@ import Dashboard from './components/Dashboard';
 import MidiMonitor from './components/MidiMonitor';
 import UserGuide from './components/UserGuide';
 import PresetFormModal from './components/PresetFormModal';
+import StageControl from './components/StageControl';
 import { useMIDI } from './hooks/useMIDI';
 import { usePresets } from './hooks/usePresets';
 
@@ -66,6 +67,12 @@ export default function App() {
                 isLiveMode={false} 
                 onAddNew={openNewModal}
                 onEdit={openEditModal}
+              />
+            )}
+            {activeTab === 'stage' && (
+              <StageControl 
+                presetsHook={presetsHook} 
+                midiState={midiState} 
               />
             )}
             {activeTab === 'live' && (
