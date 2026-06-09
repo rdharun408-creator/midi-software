@@ -39,6 +39,9 @@ export default function LiveBanks({ presetsHook, midiState, isLocked, setIsLocke
     }))
   );
 
+  // Per-pad search term for filtering presets in the editor modal
+  const [voiceSearchTerms, setVoiceSearchTerms] = useState(Array(6).fill(''));
+
   // Active Voice selection state in the live deck
   const [activeVoiceIndex, setActiveVoiceIndex] = useState(null);
 
@@ -201,10 +204,12 @@ export default function LiveBanks({ presetsHook, midiState, isLocked, setIsLocke
     setBankName('');
     setBankBpm(bpm);
     setBankTranspose(transpose);
+    setVoiceSearchTerms(Array(6).fill(''));
     
     // Auto-populate 6 voice inputs with default/first voices from the presets list
+    const nonArpPresets = presets.filter(p => p.category !== 'Arpeggio');
     const defaults = Array.from({ length: 6 }, (_, i) => {
-      const preset = presets[i % presets.length] || { name: 'Grand Piano', msb: 0, lsb: 112, program: 1, id: '' };
+      const preset = nonArpPresets[i % nonArpPresets.length] || { name: 'Grand Piano', msb: 0, lsb: 112, program: 1, id: '' };
       return {
         name: preset.name,
         msb: preset.msb ?? 0,
@@ -224,6 +229,7 @@ export default function LiveBanks({ presetsHook, midiState, isLocked, setIsLocke
     setBankName(bank.name);
     setBankBpm(bank.bpm);
     setBankTranspose(bank.transpose);
+    setVoiceSearchTerms(Array(6).fill(''));
     
     // Map bank voices to editor form state
     const mappedVoices = bank.voices.map(v => {
@@ -905,18 +911,44 @@ export default function LiveBanks({ presetsHook, midiState, isLocked, setIsLocke
                       </div>
 
                       {/* Dropdown presets selector */}
-                      <div className="flex flex-col">
-                        <label className="text-[8px] text-slate-500 font-bold uppercase mb-1">Select voice from library</label>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-[8px] text-slate-500 font-bold uppercase">Select voice from library</label>
+                        {/* Search box to filter the preset list */}
+                        <div className="relative">
+                          <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500" xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                          <input
+                            type="text"
+                            placeholder="Search voices..."
+                            value={voiceSearchTerms[idx]}
+                            onChange={(e) => {
+                              const updated = [...voiceSearchTerms];
+                              updated[idx] = e.target.value;
+                              setVoiceSearchTerms(updated);
+                            }}
+                            className="w-full bg-slate-950/80 border border-white/5 rounded-lg pl-7 pr-2.5 py-1.5 text-[11px] text-white focus:outline-none focus:border-indigo-500/50 placeholder-slate-600"
+                          />
+                        </div>
                         <select
                           value={voice.presetId}
                           onChange={(e) => handleEditorVoiceSelect(idx, e.target.value)}
                           className="w-full bg-slate-900 border border-white/5 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500/50"
+                          size={voiceSearchTerms[idx] ? 4 : 1}
                         >
                           <option value="custom">-- Enter custom details manually --</option>
                           <option value="internal">-- Keyboard Internal Panel Voice --</option>
-                          {presets.map(p => (
-                            <option key={p.id} value={p.id}>{p.name} (#{p.voiceNo})</option>
-                          ))}
+                          {presets
+                            .filter(p => p.category !== 'Arpeggio')
+                            .filter(p => {
+                              const q = voiceSearchTerms[idx].toLowerCase();
+                              if (!q) return true;
+                              return p.name.toLowerCase().includes(q) ||
+                                p.category.toLowerCase().includes(q) ||
+                                (p.voiceNo !== null && String(p.voiceNo).includes(q));
+                            })
+                            .map(p => (
+                              <option key={p.id} value={p.id}>{p.name} — {p.category} (#{p.voiceNo})</option>
+                            ))
+                          }
                         </select>
                       </div>
 

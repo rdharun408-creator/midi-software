@@ -132,10 +132,13 @@ export default function StageControl({ presetsHook, midiState }) {
     }
   };
 
-  // Filter presets for dropdown selector
+  // Filter presets for dropdown selector (exclude Arpeggio category — keyboard-internal styles with no MIDI values)
   const filteredPresets = presets.filter(p => 
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (p.voiceNo !== null && p.voiceNo !== undefined && String(p.voiceNo).includes(searchTerm))
+    p.category !== 'Arpeggio' && (
+      p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (p.voiceNo !== null && p.voiceNo !== undefined && String(p.voiceNo).includes(searchTerm))
+    )
   ).slice(0, 15); // Show top 15 matches for quick UI selection
 
   return (
