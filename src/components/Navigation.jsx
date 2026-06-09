@@ -1,11 +1,12 @@
 import React from 'react';
-import { LayoutDashboard, Cable, Mic2, Terminal, BookOpen, Music, Layers } from 'lucide-react';
+import { LayoutDashboard, Cable, Mic2, Terminal, BookOpen, Music, Layers, Disc, FolderOpen, Lock } from 'lucide-react';
 
-export default function Navigation({ activeTab, setActiveTab, midiState }) {
+export default function Navigation({ activeTab, setActiveTab, midiState, isLocked }) {
   const { isConnected, outputs, selectedOutputId } = midiState || {};
   
   const navItems = [
     { id: 'dashboard', label: 'Voices', icon: LayoutDashboard },
+    { id: 'banks', label: 'Banks', icon: FolderOpen },
     { id: 'stage', label: 'Stage Control', icon: Layers },
     { id: 'live', label: 'Live Mode', icon: Mic2 },
     { id: 'connect', label: 'Devices', icon: Cable },
@@ -63,20 +64,31 @@ export default function Navigation({ activeTab, setActiveTab, midiState }) {
             {navItems.map(item => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
+              const isItemLocked = isLocked && item.id !== 'banks';
               return (
                 <button
                   key={item.id}
-                  onClick={() => setActiveTab(item.id)}
+                  disabled={isItemLocked}
+                  onClick={() => !isItemLocked && setActiveTab(item.id)}
                   className={`flex items-center gap-3.5 w-full px-4 py-3 rounded-xl text-sm font-semibold transition-all relative group ${
-                    isActive 
-                      ? 'bg-gradient-to-r from-indigo-500/15 to-purple-500/5 text-indigo-400 border-l-2 border-indigo-500' 
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-white/3 border-l-2 border-transparent'
+                    isItemLocked
+                      ? 'opacity-30 cursor-not-allowed text-slate-600'
+                      : isActive 
+                        ? 'bg-gradient-to-r from-indigo-500/15 to-purple-500/5 text-indigo-400 border-l-2 border-indigo-500' 
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-white/3 border-l-2 border-transparent'
                   }`}
                 >
-                  <Icon size={18} className={`transition-transform duration-300 group-hover:scale-110 ${isActive ? 'text-indigo-400' : 'text-slate-400 group-hover:text-slate-300'}`} />
-                  <span>{item.label}</span>
-                  {isActive && (
+                  {isItemLocked ? (
+                    <Lock size={18} className="text-amber-500/60" />
+                  ) : (
+                    <Icon size={18} className={`transition-transform duration-300 group-hover:scale-110 ${isActive ? 'text-indigo-400' : 'text-slate-400 group-hover:text-slate-300'}`} />
+                  )}
+                  <span className={isItemLocked ? 'text-slate-500' : ''}>{item.label}</span>
+                  {isActive && !isItemLocked && (
                     <div className="absolute right-3 w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.8)]"></div>
+                  )}
+                  {isItemLocked && (
+                    <Lock size={12} className="absolute right-3 text-amber-500/30" />
                   )}
                 </button>
               );
@@ -117,18 +129,26 @@ export default function Navigation({ activeTab, setActiveTab, midiState }) {
           {navItems.map(item => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
+            const isItemLocked = isLocked && item.id !== 'banks';
             return (
               <button
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
+                disabled={isItemLocked}
+                onClick={() => !isItemLocked && setActiveTab(item.id)}
                 className={`flex flex-col items-center gap-1 py-1.5 px-3.5 rounded-xl transition-all ${
-                  isActive 
-                    ? 'text-indigo-400 bg-indigo-500/10' 
-                    : 'text-slate-400 hover:text-slate-200'
+                  isItemLocked
+                    ? 'opacity-30 cursor-not-allowed text-slate-600'
+                    : isActive 
+                      ? 'text-indigo-400 bg-indigo-500/10' 
+                      : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
-                <Icon size={20} className={isActive ? 'text-indigo-400' : 'text-slate-400'} />
-                <span className="text-[10px] font-bold tracking-tight">{item.label}</span>
+                {isItemLocked ? (
+                  <Lock size={20} className="text-amber-500/60" />
+                ) : (
+                  <Icon size={20} className={isActive ? 'text-indigo-400' : 'text-slate-400'} />
+                )}
+                <span className={`text-[10px] font-bold tracking-tight ${isItemLocked ? 'text-slate-600' : ''}`}>{item.label}</span>
               </button>
             );
           })}

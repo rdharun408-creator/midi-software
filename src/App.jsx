@@ -6,11 +6,13 @@ import MidiMonitor from './components/MidiMonitor';
 import UserGuide from './components/UserGuide';
 import PresetFormModal from './components/PresetFormModal';
 import StageControl from './components/StageControl';
+import LiveBanks from './components/LiveBanks';
 import { useMIDI } from './hooks/useMIDI';
 import { usePresets } from './hooks/usePresets';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('connect');
+  const [isLocked, setIsLocked] = useState(false);
   const midiState = useMIDI({ enableLogging: activeTab === 'monitor' });
   const presetsHook = usePresets();
 
@@ -54,11 +56,13 @@ export default function App() {
       </div>
 
       <div className="relative z-10">
-        <Navigation activeTab={activeTab} setActiveTab={setActiveTab} midiState={midiState} />
+        {!isLocked && (
+          <Navigation activeTab={activeTab} setActiveTab={setActiveTab} midiState={midiState} isLocked={isLocked} />
+        )}
         
         {/* Main Content Area: Offset on desktop for sidebar, add bottom padding on mobile for floating bar */}
-        <main className="md:pl-72 min-h-screen transition-all duration-300">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-28 md:pb-8">
+        <main className={`${isLocked ? '' : 'md:pl-72'} min-h-screen transition-all duration-300`}>
+          <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 ${isLocked ? 'pb-8' : 'pb-28 md:pb-8'}`}>
             {activeTab === 'connect' && <ConnectKeyboard midiState={midiState} />}
             {activeTab === 'dashboard' && (
               <Dashboard 
@@ -67,6 +71,14 @@ export default function App() {
                 isLiveMode={false} 
                 onAddNew={openNewModal}
                 onEdit={openEditModal}
+              />
+            )}
+            {activeTab === 'banks' && (
+              <LiveBanks 
+                presetsHook={presetsHook} 
+                midiState={midiState} 
+                isLocked={isLocked}
+                setIsLocked={setIsLocked}
               />
             )}
             {activeTab === 'stage' && (
