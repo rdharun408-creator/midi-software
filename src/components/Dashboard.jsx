@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Search, Plus, Edit3, Trash2, Heart, Music, Cable, Star, Sparkles, UploadCloud, DownloadCloud, AlertTriangle, RotateCcw } from 'lucide-react';
 import { CATEGORIES } from '../hooks/usePresets';
 
-export default function Dashboard({ presetsHook, midiState, isLiveMode = false, onAddNew, onEdit }) {
+export default function Dashboard({ presetsHook, midiState, isLiveMode = false, onAddNew, onEdit, isLocked }) {
   const { presets, toggleFavorite, deletePreset, exportPresets, importPresets, loadDefaultPresets } = presetsHook;
   const { sendVoiceChange, isConnected, outputs, selectedOutputId } = midiState;
 
@@ -89,21 +89,23 @@ export default function Dashboard({ presetsHook, midiState, isLiveMode = false, 
             </h2>
             <p className="text-slate-400 mt-1 text-sm">Browse, filter, and organize your synthesizer sound patches</p>
           </div>
-          <div className="flex flex-wrap gap-3 w-full md:w-auto">
-            <button className="secondary-button text-xs flex-1 md:flex-none" onClick={handleLoadDefaults}>
-              <RotateCcw size={16} /> Load Defaults
-            </button>
-            <label className="secondary-button text-xs cursor-pointer flex-1 md:flex-none">
-              <UploadCloud size={16} /> Import
-              <input type="file" accept=".json" className="hidden" onChange={handleImport} />
-            </label>
-            <button className="secondary-button text-xs flex-1 md:flex-none" onClick={exportPresets}>
-              <DownloadCloud size={16} /> Export
-            </button>
-            <button className="premium-button text-xs flex-1 md:flex-none" onClick={onAddNew}>
-              <Plus size={16} /> New Voice
-            </button>
-          </div>
+          {!isLocked && (
+            <div className="flex flex-wrap gap-3 w-full md:w-auto">
+              <button className="secondary-button text-xs flex-1 md:flex-none" onClick={handleLoadDefaults}>
+                <RotateCcw size={16} /> Load Defaults
+              </button>
+              <label className="secondary-button text-xs cursor-pointer flex-1 md:flex-none">
+                <UploadCloud size={16} /> Import
+                <input type="file" accept=".json" className="hidden" onChange={handleImport} />
+              </label>
+              <button className="secondary-button text-xs flex-1 md:flex-none" onClick={exportPresets}>
+                <DownloadCloud size={16} /> Export
+              </button>
+              <button className="premium-button text-xs flex-1 md:flex-none" onClick={onAddNew}>
+                <Plus size={16} /> New Voice
+              </button>
+            </div>
+          )}
         </div>
       ) : (
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-white/5 pb-6">
@@ -232,7 +234,7 @@ export default function Dashboard({ presetsHook, midiState, isLiveMode = false, 
                   </div>
                   
                   {/* Action overlay that reveals on card hover */}
-                  {!isLiveMode && (
+                  {!isLiveMode && !isLocked && (
                     <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                       <button 
                         className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/5 transition-all active:scale-90"
@@ -289,7 +291,7 @@ export default function Dashboard({ presetsHook, midiState, isLiveMode = false, 
                 </div>
 
                 {/* Favorite toggle star */}
-                {!isLiveMode && (
+                {!isLiveMode && !isLocked && (
                   <button 
                     className="absolute bottom-4 right-4 text-slate-600 hover:text-amber-400 transition-colors z-10 hover:scale-110 active:scale-90"
                     onClick={(e) => { e.stopPropagation(); toggleFavorite(preset.id); }}

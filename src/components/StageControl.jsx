@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Music, Plus, Trash2, Search, X, Sparkles, Check, Play, Keyboard } from 'lucide-react';
 
-export default function StageControl({ presetsHook, midiState }) {
+export default function StageControl({ presetsHook, midiState, isLocked }) {
   const { presets } = presetsHook;
   const { sendVoiceChange, isConnected } = midiState;
 
@@ -205,7 +205,7 @@ export default function StageControl({ presetsHook, midiState }) {
                 </div>
 
                 {/* Clear / Reset Button if Registered */}
-                {preset && (
+                {preset && !isLocked && (
                   <button
                     onClick={(e) => clearSlot(index, e)}
                     className="p-2 rounded-xl bg-white/3 hover:bg-rose-500/10 text-slate-500 hover:text-rose-400 border border-white/5 hover:border-rose-500/20 transition-all duration-200 active:scale-95"
@@ -266,18 +266,24 @@ export default function StageControl({ presetsHook, midiState }) {
                 ) : (
                   <div className="w-full">
                     {!isSelecting ? (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectorSlotIndex(index);
-                        }}
-                        className="w-full py-4 border border-dashed border-white/10 hover:border-indigo-500/30 rounded-2xl flex flex-col items-center justify-center gap-2 hover:bg-indigo-500/5 transition-all text-slate-500 hover:text-indigo-400 group/btn"
-                      >
-                        <div className="p-2 rounded-full bg-slate-950/60 border border-white/5 group-hover/btn:border-indigo-500/20 group-hover/btn:text-indigo-400 transition-all">
-                          <Plus size={16} />
+                      !isLocked ? (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectorSlotIndex(index);
+                          }}
+                          className="w-full py-4 border border-dashed border-white/10 hover:border-indigo-500/30 rounded-2xl flex flex-col items-center justify-center gap-2 hover:bg-indigo-500/5 transition-all text-slate-500 hover:text-indigo-400 group/btn"
+                        >
+                          <div className="p-2 rounded-full bg-slate-950/60 border border-white/5 group-hover/btn:border-indigo-500/20 group-hover/btn:text-indigo-400 transition-all">
+                            <Plus size={16} />
+                          </div>
+                          <span className="text-xs font-bold uppercase tracking-wider">Register Voice Preset</span>
+                        </button>
+                      ) : (
+                        <div className="w-full py-4 border border-dashed border-white/5 rounded-2xl flex flex-col items-center justify-center gap-2 text-slate-600 cursor-not-allowed">
+                          <span className="text-xs font-bold uppercase tracking-wider">Empty Slot</span>
                         </div>
-                        <span className="text-xs font-bold uppercase tracking-wider">Register Voice Preset</span>
-                      </button>
+                      )
                     ) : (
                       // Inline Selector Form with Ref for clicks
                       <div 

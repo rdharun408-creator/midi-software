@@ -1,7 +1,7 @@
 import React from 'react';
 import { Cable, Power, PowerOff, Activity, ShieldAlert, Cpu, ArrowRightLeft, Radio } from 'lucide-react';
 
-export default function ConnectKeyboard({ midiState }) {
+export default function ConnectKeyboard({ midiState, isLocked }) {
   const {
     inputs, outputs,
     selectedInputId, setSelectedInputId,
@@ -143,9 +143,10 @@ export default function ConnectKeyboard({ midiState }) {
               </label>
               <div className="relative">
                 <select 
-                  className="input-field pr-10 appearance-none bg-slate-950/40 text-slate-200"
+                  className="input-field pr-10 appearance-none bg-slate-950/40 text-slate-200 disabled:opacity-50 disabled:cursor-not-allowed"
                   value={selectedOutputId}
                   onChange={(e) => setSelectedOutputId(e.target.value)}
+                  disabled={isLocked}
                 >
                   <option value="" className="bg-slate-900 text-slate-400">-- No Device Selected --</option>
                   {outputs.map(out => (
@@ -168,9 +169,10 @@ export default function ConnectKeyboard({ midiState }) {
               </label>
               <div className="relative">
                 <select 
-                  className="input-field pr-10 appearance-none bg-slate-950/40 text-slate-200"
+                  className="input-field pr-10 appearance-none bg-slate-950/40 text-slate-200 disabled:opacity-50 disabled:cursor-not-allowed"
                   value={selectedChannel}
                   onChange={(e) => setSelectedChannel(Number(e.target.value))}
+                  disabled={isLocked}
                 >
                   {Array.from({ length: 16 }, (_, i) => (
                     <option key={i + 1} value={i + 1} className="bg-slate-900 text-slate-200">
@@ -189,7 +191,7 @@ export default function ConnectKeyboard({ midiState }) {
             <button 
               className="premium-button w-full mt-6"
               onClick={sendTestNote}
-              disabled={!isConnected}
+              disabled={!isConnected || isLocked}
             >
               <Activity size={18} /> Test Sound Note (Middle C)
             </button>
@@ -215,9 +217,10 @@ export default function ConnectKeyboard({ midiState }) {
               </label>
               <div className="relative">
                 <select 
-                  className="input-field pr-10 appearance-none bg-slate-950/40 text-slate-200"
+                  className="input-field pr-10 appearance-none bg-slate-950/40 text-slate-200 disabled:opacity-50 disabled:cursor-not-allowed"
                   value={selectedInputId}
                   onChange={(e) => setSelectedInputId(e.target.value)}
+                  disabled={isLocked}
                 >
                   <option value="" className="bg-slate-900 text-slate-400">-- No Device Selected --</option>
                   {inputs.map(inp => (
@@ -255,9 +258,10 @@ export default function ConnectKeyboard({ midiState }) {
                       className="sr-only" 
                       checked={midiThruEnabled}
                       onChange={(e) => setMidiThruEnabled(e.target.checked)}
+                      disabled={isLocked}
                     />
-                    <div className={`block w-12 h-7 rounded-full transition-all duration-300 ${midiThruEnabled ? 'bg-indigo-600 shadow-[0_0_12px_rgba(99,102,241,0.5)]' : 'bg-slate-800'}`}></div>
-                    <div className={`absolute left-1 top-1 bg-white w-5 h-5 rounded-full transition-transform duration-300 ${midiThruEnabled ? 'translate-x-5' : ''}`}></div>
+                    <div className={`block w-12 h-7 rounded-full transition-all duration-300 ${midiThruEnabled ? 'bg-indigo-600 shadow-[0_0_12px_rgba(99,102,241,0.5)]' : 'bg-slate-800'} ${isLocked ? 'opacity-50 cursor-not-allowed' : ''}`}></div>
+                    <div className={`absolute left-1 top-1 bg-white w-5 h-5 rounded-full transition-transform duration-300 ${midiThruEnabled ? 'translate-x-5' : ''} ${isLocked ? 'bg-slate-500' : ''}`}></div>
                   </div>
                 </label>
               </div>

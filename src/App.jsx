@@ -9,6 +9,8 @@ import StageControl from './components/StageControl';
 import LiveBanks from './components/LiveBanks';
 import { useMIDI } from './hooks/useMIDI';
 import { usePresets } from './hooks/usePresets';
+import { Lock, Unlock } from 'lucide-react';
+
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('connect');
@@ -63,7 +65,25 @@ export default function App() {
         {/* Main Content Area: Offset on desktop for sidebar, add bottom padding on mobile for floating bar */}
         <main className={`${isLocked ? '' : 'md:pl-72'} min-h-screen transition-all duration-300`}>
           <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 ${isLocked ? 'pb-8' : 'pb-28 md:pb-8'}`}>
-            {activeTab === 'connect' && <ConnectKeyboard midiState={midiState} />}
+            {/* Dynamic Page-Specific Warning Banner */}
+            {isLocked && (
+              <div className="bg-amber-500/10 border border-amber-500/25 text-amber-400 px-4 py-3.5 rounded-xl shadow-lg flex items-center gap-3 text-left animate-pulse mb-6">
+                <Lock size={18} className="text-amber-500 flex-shrink-0" />
+                <span className="text-xs font-semibold">
+                  Live Navigation Locked — Access restricted to the {
+                    activeTab === 'connect' ? 'Devices' :
+                    activeTab === 'dashboard' ? 'Voices' :
+                    activeTab === 'banks' ? 'Performance Banks' :
+                    activeTab === 'stage' ? 'Stage Control' :
+                    activeTab === 'live' ? 'Live Mode' :
+                    activeTab === 'monitor' ? 'Monitor' :
+                    activeTab === 'guide' ? 'User Guide' : 'current'
+                  } page. Unlock to visit other pages.
+                </span>
+              </div>
+            )}
+
+            {activeTab === 'connect' && <ConnectKeyboard midiState={midiState} isLocked={isLocked} />}
             {activeTab === 'dashboard' && (
               <Dashboard 
                 presetsHook={presetsHook} 
@@ -71,6 +91,7 @@ export default function App() {
                 isLiveMode={false} 
                 onAddNew={openNewModal}
                 onEdit={openEditModal}
+                isLocked={isLocked}
               />
             )}
             {activeTab === 'banks' && (
@@ -85,6 +106,7 @@ export default function App() {
               <StageControl 
                 presetsHook={presetsHook} 
                 midiState={midiState} 
+                isLocked={isLocked}
               />
             )}
             {activeTab === 'live' && (
@@ -92,12 +114,36 @@ export default function App() {
                 presetsHook={presetsHook} 
                 midiState={midiState} 
                 isLiveMode={true} 
+                isLocked={isLocked}
               />
             )}
             {activeTab === 'monitor' && <MidiMonitor midiState={midiState} />}
             {activeTab === 'guide' && <UserGuide />}
           </div>
         </main>
+      </div>
+
+      {/* Global Floating Lock/Unlock Action Button */}
+      <div className={`fixed right-6 z-50 transition-all duration-300 ${isLocked ? 'bottom-36 md:bottom-20' : 'bottom-48 md:bottom-20'}`}>
+        {isLocked ? (
+          <button
+            onClick={() => setIsLocked(false)}
+            className="flex items-center gap-2 px-5 py-3.5 rounded-full border border-yellow-300/50 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-slate-950 font-black uppercase tracking-widest shadow-[0_0_30px_rgba(245,158,11,0.5)] hover:from-amber-400 hover:via-yellow-300 hover:to-amber-500 hover:scale-110 active:scale-95 transition-all text-xs animate-bounce animate-duration-1000 cursor-pointer"
+            title="Unlock Navigation"
+          >
+            <Unlock size={14} fill="currentColor" />
+            <span>Unlock</span>
+          </button>
+        ) : (
+          <button
+            onClick={() => setIsLocked(true)}
+            className="flex items-center gap-2 px-5 py-3.5 rounded-full border border-yellow-300/50 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-slate-950 font-black uppercase tracking-widest shadow-[0_0_30px_rgba(245,158,11,0.5)] hover:from-amber-400 hover:via-yellow-300 hover:to-amber-500 hover:scale-110 active:scale-95 transition-all text-xs animate-bounce animate-duration-1000 cursor-pointer"
+            title="Lock Navigation"
+          >
+            <Lock size={14} fill="currentColor" />
+            <span>Lock</span>
+          </button>
+        )}
       </div>
 
       <PresetFormModal 

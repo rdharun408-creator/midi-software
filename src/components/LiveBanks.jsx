@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Play, Square, Plus, Trash2, Edit3, Save, FolderOpen, Sliders, Volume2, FolderPlus, Music, RotateCcw, X, Check, ArrowRight, Lock, Unlock, UploadCloud, DownloadCloud, ChevronUp, ChevronDown, Maximize2, Minimize2 } from 'lucide-react';
+import { Play, Square, Plus, Trash2, Edit3, Save, FolderOpen, Sliders, Volume2, FolderPlus, Music, RotateCcw, X, Check, ArrowRight, UploadCloud, DownloadCloud, ChevronUp, ChevronDown, Maximize2, Minimize2 } from 'lucide-react';
 
 export default function LiveBanks({ presetsHook, midiState, isLocked, setIsLocked }) {
   const { presets } = presetsHook;
@@ -402,36 +402,6 @@ export default function LiveBanks({ presetsHook, midiState, isLocked, setIsLocke
   return (
     <div className="space-y-8 animate-fade-in relative z-10">
       
-      {/* Floating Action Button in the bottom-right corner for locking/unlocking navigation */}
-      <div className="fixed right-6 bottom-24 z-50">
-        {isLocked ? (
-          <button
-            onClick={() => setIsLocked(false)}
-            className="flex items-center gap-2 px-5 py-3.5 rounded-full border border-yellow-300/50 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-slate-950 font-black uppercase tracking-widest shadow-[0_0_30px_rgba(245,158,11,0.5)] hover:from-amber-400 hover:via-yellow-300 hover:to-amber-500 hover:scale-110 active:scale-95 transition-all text-xs animate-bounce animate-duration-1000"
-            title="Unlock Navigation"
-          >
-            <Unlock size={14} fill="currentColor" />
-            <span>Unlock</span>
-          </button>
-        ) : (
-          <button
-            onClick={() => setIsLocked(true)}
-            className="flex items-center gap-2 px-5 py-3.5 rounded-full border border-yellow-300/50 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-slate-950 font-black uppercase tracking-widest shadow-[0_0_30px_rgba(245,158,11,0.5)] hover:from-amber-400 hover:via-yellow-300 hover:to-amber-500 hover:scale-110 active:scale-95 transition-all text-xs animate-bounce animate-duration-1000"
-            title="Lock Navigation"
-          >
-            <Lock size={14} fill="currentColor" />
-            <span>Lock</span>
-          </button>
-        )}
-      </div>
-
-      {/* Navigation Lock Warning Banner */}
-      {isLocked && (
-        <div className="bg-amber-500/10 border border-amber-500/25 text-amber-400 px-4 py-3.5 rounded-xl shadow-lg flex items-center gap-3 text-left animate-pulse">
-          <Lock size={18} className="text-amber-500 flex-shrink-0" />
-          <span className="text-xs font-semibold">Live Navigation Locked — Access restricted to the Performance Banks page. Unlock to visit other pages.</span>
-        </div>
-      )}
 
       {/* Top Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-white/5 pb-6">
